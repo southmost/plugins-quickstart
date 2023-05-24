@@ -1,6 +1,6 @@
 {
   "schema_version": "v1",
-  "name_for_human": "Fun Fact Plugin (no auth)",
+  "name_for_human": "Texas Facts",
   "name_for_model": "funfact",
   "description_for_human": "Plugin for generating random fun facts about Texas.",
   "description_for_model": "Plugin for generating random fun fact about Texas. Compose ASCII art based on the fact.",  "auth": {
