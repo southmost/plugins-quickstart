@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+replit_zip_error_log.txt
+.config/ssh/.authorized_keys
