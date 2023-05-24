@@ -17,9 +17,9 @@ paths:
             schema:
               type: object
               properties:
-                image_url:
+                description:
                   type: string
-                  description: The URL of the image to generate.
+                  description: The description to be used for generating the image.
       responses:
         "200":
           description: OK
@@ -30,3 +30,5 @@ paths:
                 properties:
                   job:
                     type: object
+                    description: Information about the image generation job.
+                    # Add properties here, if possible
