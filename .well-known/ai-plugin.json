@@ -1,9 +1,10 @@
 {
   "schema_version": "v1",
-  "name_for_human": "Texas Facts",
-  "name_for_model": "funfact",
-  "description_for_human": "Plugin for generating random fun facts about Texas.",
-  "description_for_model": "Plugin for generating random fun fact about Texas. Compose ASCII art based on the fact.",  "auth": {
+  "name_for_human": "Fever Dream Image Generator",
+  "name_for_model": "feverdream",
+  "description_for_human": "A plugin that allows you to generate unique images using the Fever Dream API.",
+  "description_for_model": "This plugin interacts with the Fever Dream API to generate unique images based on given parameters.",
+  "auth": {
     "type": "none"
   },
   "api": {
