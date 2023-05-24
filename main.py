@@ -1,5 +1,6 @@
 import json
 import requests
+import httpx
 
 import quart
 import quart_cors
@@ -129,21 +130,21 @@ def create_job(image_description):
 async def generate_fever_dream_image():
     data = await request.get_json()
     image_description = data.get('description')
-    
     response = create_job(image_description)
-    
-    # Store the job ID for later use.
-    if response is not None and 'job_id' in response:
-        job_id = response['job_id']
-        if job_id not in _JOB_IDS:
-            _JOB_IDS[job_id] = {'description': image_description, 'status': 'processing'}
-            # Immediately request the job status and update it in the dictionary.
-            status_response = check_job_status(job_id)
-            if status_response is not None and 'status' in status_response:
-                _JOB_IDS[job_id]['status'] = status_response['status']
-        return jsonify(response)
+
+    # Check if response is successful and contains results.
+    if response is not None and response.get('success') and 'results' in response:
+        uuids = []
+        for result in response['results']:
+            if result.get('success') and 'uuid' in result:
+                uuid = result['uuid']
+                uuids.append(uuid)
+                if uuid not in _JOB_IDS:
+                    _JOB_IDS[uuid] = {'description': image_description, 'status': 'processing'}
+        return jsonify({'uuids': uuids})
     else:
         return jsonify({'error': 'Job creation failed.'}), 500
+
 
 @app.route('/jobs/<string:job_id>', methods=['GET'])
 def check_job_status(job_id):
@@ -160,10 +161,9 @@ def check_job_status(job_id):
         print(f"Error: {response.text}")
         return None
 
-@app.route('/job_status/<job_id>', methods=['GET'])
+@app.route('/job_status/<string:job_id>', methods=['GET'])
 async def get_job_status(job_id):
     if job_id in _JOB_IDS:
-        # When the job status is requested, update it in the dictionary.
         status_response = check_job_status(job_id)
         if status_response is not None and 'status' in status_response:
             _JOB_IDS[job_id]['status'] = status_response['status']
