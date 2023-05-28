@@ -1,15 +1,15 @@
 openapi: 3.1.0
 info:
-  title: azki
-  description: A plugin that allows the user to generate an image using Fever Dream API.
+  title: AI Term Explainer
+  description: A plugin that generates explanations of AI/ML terms at three different complexity levels.
   version: 'v1'
 servers:
   - url: http://localhost:5003
 paths:
-  /generate:
+  /explain:
     post:
-      operationId: generateImage
-      summary: Generate an image using Fever Dream API
+      operationId: explainTerm
+      summary: Generate explanations of a given AI/ML term at three different complexity levels.
       requestBody:
         required: true
         content:
@@ -17,9 +17,9 @@ paths:
             schema:
               type: object
               properties:
-                description:
+                term:
                   type: string
-                  description: The description to be used for generating the image.
+                  description: The AI/ML term to be explained.
       responses:
         "200":
           description: OK
@@ -28,7 +28,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  job:
-                    type: object
-                    description: Information about the image generation job.
-                    # Add properties here, if possible
+                  expert_explanation:
+                    type: string
+                    description: The explanation of the term for an AI researcher.
+                  intermediate_explanation:
+                    type: string
+                    description: The explanation of the term for a computer science undergraduate.
+                  beginner_explanation:
+                    type: string
+                    description: The explanation of the term for someone with no background in AI or ML.

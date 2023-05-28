@@ -1,175 +1,39 @@
 import json
-import requests
-import httpx
-
-import quart
 import quart_cors
 from quart import jsonify, request
+import asyncio
+import quart
+_TODOS ={}
 
 app = quart_cors.cors(quart.Quart(__name__),
                       allow_origin="https://chat.openai.com")
 
-# Keep track of todo's. Does not persist if Python session is restarted.
-_TODOS = {}
-_JOB_IDS = {}
-
-api_key = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlFqaEdSRUl6T1VSRVJEZzJSa0pCUXpjelF6SXhRMFUyUWpnM09VSkJSRU16TVVGRk5FWkZNdyJ9.eyJpc3MiOiJodHRwczovL2Rldi15cXpzbjMyNi5hdXRoMC5jb20vIiwic3ViIjoib2F1dGgyfGRpc2NvcmR8NDU1NDMwMTcyOTI2Mjc5Njk4IiwiYXVkIjpbImh0dHBzOi8vYXBpLmZldmVyZHJlYW1zLmFwcC8iLCJodHRwczovL2Rldi15cXpzbjMyNi5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNjg0ODk4NTcyLCJleHAiOjE2ODQ5ODQ5NzIsImF6cCI6ImRsdDY4M1JLWG9UNnRET0hDYTh3V1FRYW9Ib2JjalFtIiwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsInBlcm1pc3Npb25zIjpbInZldHRlZCJdfQ.RTjKa_YiU4fmWJiHXpbT6i3ni4gtxUxcUWaqGMgp2ksiA4JKfqgN9jDOWEznTGhz8IsZTPcuLaIDH77FzA5UgYUfY3MW_-awwJwVaVwpz48WG3vBRS7aC70nNxD21kvTKQlBdtElvHjSce24naXZb0qv_bs62e9hsA8yX3irAFY3BZfEbKDjcVQ41PDLjx5gmPsZMJ5DAo'  # Replace with your actual API key
-
-
-def create_job(image_description):
-    url = "https://api.feverdreams.app/v3/create/mutate"
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    params = {
-        "job": {
-            "algo": "stable",
-            "uuid": "genesis",
-            "status": "new",
-            "nsfw": False,
-            "private": False,
-            "hide": False,
-            "review": True,
-            "priority": "medium",
-            "location": {
-                "png": None,
-                "jpg": None,
-                "thumbs": {
-                    "64": None,
-                    "128": None,
-                    "256": None,
-                    "512": None,
-                    "1024": None
-                }
-            },
-            "params": {
-                "sd_model_checkpoint": "cc6cb27103417325ff94f52b7a5d2dde45a7515b25c255d8e396c90014281516",
-                "mode": "txt2img",
-                "other_model": "",
-                "ti_enabled": False,
-                "embeddings": [],
-                "loras_enabled": False,
-                "loras": [],
-                "img2img_ref_img_type": "piece",
-                "img2img_ref_img_url": "",
-                "img2img_resize_mode": 0,
-                "img2img_denoising_strength": 0.75,
-                "img2img_mask_hash": "",
-                "img2img_inpaint": False,
-                "img2img_mask_blur": 4,
-                "img2img_inpainting_fill": 1,
-                "img2img_inpaint_full_res": True,
-                "img2img_inpaint_full_res_padding": 32,
-                "img2img_inpainting_mask_invert": 1,
-                "img2img_initial_noise_multiplier": 1,
-                "controlnet_enabled": False,
-                "controlnet_ref_img_type": "piece",
-                "controlnet_module": "none",
-                "controlnet_model": "none",
-                "controlnet_threshold_a": 0,
-                "controlnet_threshold_b": 0,
-                "controlnet_preprocessor_resolution": 512,
-                "controlnet_control_mode": "0",
-                "controlnet_weight": 1,
-                "controlnet_guidance_start": 0,
-                "controlnet_guidance_end": 1,
-                "width_height": [512, 512],
-                "denoising_strength": 0.75,
-                "hr_scale": 1.5,
-                "seed": -1,
-                "scale": 7,
-                "offset_noise": 0,
-                "clip_skip": 1,
-                "steps": 25,
-                "prompt": image_description,
-                "negative_prompt": "",
-                "restore_faces": False,
-                "fr_model": "CodeFormer",
-                "cf_weight": 0.5,
-                "enable_hr": False,
-                "sampler": "Euler a",
-                "eta": 0,
-                "enable_ad": False,
-                "ad_model": "face_yolov8n.pt",
-                "ad_prompt": "highly detailed face",
-                "ad_negative_prompt": "ugly",
-                "ad_conf": 0.3,
-                "ad_dilate_erode": 32,
-                "ad_x_offset": 0,
-                "ad_y_offset": 0,
-                "ad_mask_blur": 4,
-                "ad_denoising_strength": 0.4,
-                "ad_inpaint_full_res": True,
-                "ad_inpaint_full_res_padding": 0,
-                "ad_use_inpaint_width_height": False,
-                "ad_inpaint_width": 512,
-                "ad_inpaint_height": 512,
-                "ad_use_cfg_scale": False,
-                "ad_cfg_scale": 7,
-                "ad_controlnet_model": "None",
-                "ad_controlnet_weight": 1,
-                "parent_uuid": "genesis"
-            },
-            "batch_size": 1
-        }
-    }
-
-    response = requests.post(url, headers=headers, json=params)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error: {response.text}")
-        return None
-
-
-@app.route('/generate', methods=['POST'])
-async def generate_fever_dream_image():
+@app.route('/explain', methods=['POST'])
+async def explain_term():
     data = await request.get_json()
-    image_description = data.get('description')
-    response = create_job(image_description)
+    term = data['term']
 
-    # Check if response is successful and contains results.
-    if response is not None and response.get('success') and 'results' in response:
-        uuids = []
-        for result in response['results']:
-            if result.get('success') and 'uuid' in result:
-                uuid = result['uuid']
-                uuids.append(uuid)
-                if uuid not in _JOB_IDS:
-                    _JOB_IDS[uuid] = {'description': image_description, 'status': 'processing'}
-        return jsonify({'uuids': uuids})
-    else:
-        return jsonify({'error': 'Job creation failed.'}), 500
+    prompts = [
+        f"Explain {term} as if you were speaking to an AI researcher.",
+        f"Explain {term} as if you were speaking to a computer science undergraduate.",
+        f"Explain {term} as if you were speaking to someone with no background in AI or ML."
+    ]
+
+    explanations = {}
+    for i, level in enumerate(['expert', 'intermediate', 'beginner']):
+        # You need to replace 'Your AI model response' with the actual call to your AI model.
+        explanations[level + '_explanation'] = 'Your AI model response'
+
+    return quart.Response(response=json.dumps(explanations), mimetype='application/json')
 
 
-@app.route('/jobs/<string:job_id>', methods=['GET'])
-def check_job_status(job_id):
-    url = f"https://api.feverdreams.app/v3/jobs/{job_id}"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Error: {response.text}")
-        return None
-
-@app.route('/job_status/<string:job_id>', methods=['GET'])
-async def get_job_status(job_id):
-    if job_id in _JOB_IDS:
-        status_response = check_job_status(job_id)
-        if status_response is not None and 'status' in status_response:
-            _JOB_IDS[job_id]['status'] = status_response['status']
-        return jsonify(_JOB_IDS[job_id])
-    else:
-        return jsonify({'error': 'Job not found.'}), 404
+@app.get("/plugin-info")
+async def plugin_info():
+    return quart.Response(response=json.dumps({
+        "name": "ASCII Art Generator",
+        "version": "1.0.0",
+        "description": "A simple plugin to generate ASCII art from text."
+    }), status=200)
 
 @app.post("/todos/<string:username>")
 async def add_todo(username):

@@ -1,9 +1,9 @@
 {
   "schema_version": "v1",
-  "name_for_human": "Fever Dream Image Generator",
-  "name_for_model": "feverdream",
-  "description_for_human": "A plugin that allows you to generate unique images using the Fever Dream API.",
-  "description_for_model": "This plugin interacts with the Fever Dream API to generate unique images based on given parameters.",
+  "name_for_human": "AI Term Explainer",
+  "name_for_model": "aitermexplainer",
+  "description_for_human": "A plugin that explains AI/ML terms at three different complexity levels: expert, intermediate, and beginner.",
+  "description_for_model": "This plugin provides explanations for AI and Machine Learning terms. It can generate responses at three different levels of complexity: expert, intermediate, and beginner. The complexity level is chosen based on the user's preference.",
   "auth": {
     "type": "none"
   },
